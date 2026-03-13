@@ -2,47 +2,51 @@
 {% block title %}Register{% endblock %}
 {% block main %}
 <div class="container mt-4">
-  <form action="/register" method="post">
-    <div class="row mb-3">
-      <label class="col-sm-3 col-form-label">Username</label>
-      <div class="col-sm-6">
-        <input type="text" autocomplete="off" autofocus placeholder="username" name="username" class="form-control"
-          required>
-      </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <form action="/register" method="post">
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Username</label>
+          <div class="col-sm-6">
+            <input type="text" autocomplete="off" autofocus placeholder="username" name="username" class="form-control"
+              required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">First Name</label>
+          <div class="col-sm-6">
+            <input type="text" autocomplete="off" autofocus placeholder="first name" name="first_name"
+              class="form-control" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Last Name</label>
+          <div class="col-sm-6">
+            <input type="text" autocomplete="off" autofocus placeholder="last name" name="last_name"
+              class="form-control" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Password</label>
+          <div class="col-sm-6">
+            <input type="password" autocomplete="off" autofocus placeholder="password" name="password"
+              class="form-control" required>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">Confirm Password</label>
+          <div class="col-sm-6">
+            <input type="password" autocomplete="off" autofocus placeholder="confirm password" name="confirm_password"
+              class="form-control" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-4 offset-sm-3">
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <div class="row mb-3">
-      <label class="col-sm-3 col-form-label">First Name</label>
-      <div class="col-sm-6">
-        <input type="text" autocomplete="off" autofocus placeholder="first name" name="first_name" class="form-control"
-          required>
-      </div>
-    </div>
-    <div class="row mb-3">
-      <label class="col-sm-3 col-form-label">Last Name</label>
-      <div class="col-sm-6">
-        <input type="text" autocomplete="off" autofocus placeholder="last name" name="last_name" class="form-control"
-          required>
-      </div>
-    </div>
-    <div class="row mb-3">
-      <label class="col-sm-3 col-form-label">Password</label>
-      <div class="col-sm-6">
-        <input type="password" autocomplete="off" autofocus placeholder="password" name="password" class="form-control"
-          required>
-      </div>
-    </div>
-    <div class="row mb-3">
-      <label class="col-sm-3 col-form-label">Confirm Password</label>
-      <div class="col-sm-6">
-        <input type="password" autocomplete="off" autofocus placeholder="confirm password" name="confirm_password"
-          class="form-control" required>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-6 offset-sm-3">
-        <button type="submit" class="btn btn-primary w-100">Register</button>
-      </div>
-    </div>
-  </form>
+  </div>
 </div>
 {% endblock %}
