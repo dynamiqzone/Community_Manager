@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+
+{% block main %}
+<div class="container">
+    {% if session.get("user") %}
+        <div class="p-5 mb-4 bg-white border rounded-3 shadow-sm">
+            <div class="container-fluid py-2">
+                <h1 class="display-5 fw-bold text-dark">Hi, {{ session.get("first_name", "User") }}!</h1>
+                <p class="col-md-8 fs-4 text-muted">Welcome to your Community Dashboard. You can manage your events and profile from here.</p>
+                <hr class="my-4">
+                <div class="d-flex gap-2">
+                    <a href="/events" class="btn btn-primary btn-lg">View Events</a>
+                    <button class="btn btn-outline-secondary btn-lg">View Profile</button>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h1 class="display-4">Welcome to CommunityHub</h1>
+            <p class="lead">Connect with your community and manage local events with ease.</p>
+            <div class="mt-4">
+                <a href="/login" class="btn btn-primary me-2">Login</a>
+                <a href="/register" class="btn btn-outline-primary">Join Now</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

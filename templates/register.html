@@ -1,53 +1,65 @@
 {% extends "layout.html" %}
 {% block title %}Register{% endblock %}
+
 {% block main %}
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-8">
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 85vh;">
+  <div class="row w-100">
+    <div class="col-md-9 col-lg-7 mx-auto">
       <div class="card shadow-sm">
         <div class="card-body p-4">
           <h3 class="card-title text-center mb-4">Create Account</h3>
           <form action="/register" method="post">
-            <div class="row mb-4">
-              <label class="col-sm-4 col-form-label text-sm-end">Username</label>
-              <div class="col-sm-6">
+            
+            <div class="row mb-3 align-items-center">
+              <label class="col-sm-4 col-form-label text-sm-end text-nowrap">Username</label>
+              <div class="col-sm-7">
                 <input type="text" autocomplete="off" autofocus placeholder="username" name="username"
                   class="form-control" required>
               </div>
             </div>
-            <div class="row mb-4">
-              <label class="col-sm-4 col-form-label text-sm-end">First Name</label>
-              <div class="col-sm-6">
+
+            <div class="row mb-3 align-items-center">
+              <label class="col-sm-4 col-form-label text-sm-end text-nowrap">First Name</label>
+              <div class="col-sm-7">
                 <input type="text" autocomplete="off" placeholder="first name" name="first_name" class="form-control"
                   required>
               </div>
             </div>
-            <div class="row mb-4">
-              <label class="col-sm-4 col-form-label text-sm-end">Last Name</label>
-              <div class="col-sm-6">
+
+            <div class="row mb-3 align-items-center">
+              <label class="col-sm-4 col-form-label text-sm-end text-nowrap">Last Name</label>
+              <div class="col-sm-7">
                 <input type="text" autocomplete="off" placeholder="last name" name="last_name" class="form-control"
                   required>
               </div>
             </div>
-            <div class="row mb-4">
-              <label class="col-sm-4 col-form-label text-sm-end">Password</label>
-              <div class="col-sm-6">
+
+            <div class="row mb-3 align-items-center">
+              <label class="col-sm-4 col-form-label text-sm-end text-nowrap">Password</label>
+              <div class="col-sm-7">
                 <input type="password" autocomplete="off" placeholder="password" name="password" class="form-control"
                   required>
               </div>
             </div>
-            <div class="row mb-4">
-              <label class="col-sm-4 col-form-label text-sm-end">Confirm Password</label>
-              <div class="col-sm-6">
+
+            <div class="row mb-4 align-items-center">
+              <label class="col-sm-4 col-form-label text-sm-end text-nowrap">Confirm Password</label>
+              <div class="col-sm-7">
                 <input type="password" autocomplete="off" placeholder="confirm password" name="confirm_password"
                   class="form-control" required>
               </div>
             </div>
+
             <div class="row">
-              <div class="col-sm-6 offset-sm-4">
-                <button type="submit" class="btn btn-primary w-100">Register</button>
+              <div class="col-sm-7 offset-sm-4">
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">Register</button>
               </div>
             </div>
+
+            <div class="text-center mt-3">
+              <small class="text-muted">Already have an account? <a href="/login">Login</a></small>
+            </div>
+
           </form>
         </div>
       </div>
