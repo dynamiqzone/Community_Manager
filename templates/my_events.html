@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}My Events{% endblock %}
+{% block main %}
+    <div class="container mt-4">
+        <h2 class="mb-4">Events I'm Attending</h2>
+        <div class="row">
+            {% for event in events %}
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text text-muted small">
+                                <i class="bi bi-calendar-event"></i> {{ event.event_date }}
+                                <br>
+                                <i class="bi bi-geo-alt"></i> {{ event.location }}
+                            </p>
+                            <p class="card-text">{{ event.description[:100] }}...</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+                            <a href="/event/{{ event.id }}" class="btn btn-sm btn-outline-primary">Details</a>
+                            <form action="/cancel_rsvp/{{ event.id }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel RSVP</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">You haven't joined any events yet.</p>
+                    <a href="/" class="btn btn-primary">Browse Events</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

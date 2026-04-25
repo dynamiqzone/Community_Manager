@@ -1,0 +1,336 @@
+{% extends "layout.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block main %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Community Administration</h1>
+        </div>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-3">
+                    <i class="bi bi-broadcast me-2"></i> Post Global Announcement
+                </h5>
+                <form action="/post_announcement" method="POST" class="d-flex gap-2">
+                    <input type="text"
+                           name="content"
+                           class="form-control"
+                           placeholder="What does the community need to know?"
+                           required>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </form>
+                <form action="/clear_announcement" method="POST" class="mt-2">
+                    <button type="submit" class="btn btn-sm btn-link text-danger p-0">Clear current announcement</button>
+                </form>
+            </div>
+        </div>
+        <div class="card border-warning mb-4 shadow-sm">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-person-badge me-2"></i> Pending Volunteer Requests
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Member</th>
+                                <th>Event</th>
+                                <th>Proposed Role/Note</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rsvp, user, event in pending_volunteers %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="fw-bold">{{ user.first_name }} {{ user.last_name }}</span>
+                                        <br>
+                                        <small class="text-muted">@{{ user.username }}</small>
+                                    </td>
+                                    <td>{{ event.title }}</td>
+                                    <td>
+                                        <em>"{{ rsvp.volunteer_role }}"</em>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="btn-group shadow-sm gap-2">
+                                            <form action="/approve_volunteer/{{ rsvp.id }}"
+                                                  method="POST"
+                                                  class="d-inline">
+                                                <button class="btn btn-sm btn-success px-3">Approve</button>
+                                            </form>
+                                            <form action="/reject_volunteer/{{ rsvp.id }}"
+                                                  method="POST"
+                                                  class="d-inline">
+                                                <button class="btn btn-sm btn-outline-danger px-3">Decline</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No pending volunteer requests at the moment.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase small opacity-75">Total Members</h6>
+                        <h2 class="mb-0">{{ total_members }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-secondary text-white shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase small opacity-75">Total RSVPs</h6>
+                        <h2 class="mb-0">{{ total_rsvps }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="card-title text-uppercase small opacity-75">Active Volunteers</h6>
+                        <h2 class="mb-0">{{ total_volunteers }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active"
+                        id="members-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#members"
+                        type="button">Members</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link"
+                        id="events-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#events"
+                        type="button">Events</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link position-relative"
+                        id="pending-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#pending"
+                        type="button">
+                    Volunteer Requests
+                    {% if pending_volunteers|length > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ pending_volunteers|length }}
+                        </span>
+                    {% endif %}
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="members">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                                <tr>
+                                    <td>{{ member.first_name }} {{ member.last_name }}</td>
+                                    <td>{{ member.email }}</td>
+                                    <td>
+                                        <span class="badge {% if member.role == 'admin' %}bg-danger{% elif member.role == 'supervisor' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ member.role }}</span>
+                                    </td>
+                                    <td class="small text-muted">{{ member.joined_at.strftime("%Y-%m-%d") if member.joined_at }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#assignModal{{ member.id }}">Assign</button>
+                                            {% if session.get("is_founder") and member.id != session.get("user_id") %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                            type="button"
+                                                            data-bs-toggle="dropdown">Role</button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <form action="/change_role/{{ member.id }}/admin" method="POST">
+                                                                <button class="dropdown-item text-danger" type="submit">Make Admin</button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form action="/change_role/{{ member.id }}/supervisor" method="POST">
+                                                                <button class="dropdown-item" type="submit">Supervisor</button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form action="/change_role/{{ member.id }}/member" method="POST">
+                                                                <button class="dropdown-item" type="submit">Demote to Member</button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal fade"
+                                             id="assignModal{{ member.id }}"
+                                             tabindex="-1"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <form action="/assign_member_to_event" method="POST">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Assign {{ member.first_name }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body text-start">
+                                                            <input type="hidden" name="user_id" value="{{ member.id }}">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Select Event</label>
+                                                                <select name="event_id" class="form-select" required>
+                                                                    <option value="" disabled selected>Choose an event...</option>
+                                                                    {% for event in events %}<option value="{{ event.id }}">{{ event.title }}</option>{% endfor %}
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Volunteer Role</label>
+                                                                <input type="text"
+                                                                       name="volunteer_role"
+                                                                       class="form-control"
+                                                                       placeholder="Catering, Setup, etc.">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="submit" class="btn btn-primary">Confirm</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-5 pt-4 border-top">
+                    <h3 class="h4 mb-3">Current Volunteer Assignments</h3>
+                    <div class="card shadow-sm overflow-hidden border-0">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="ps-3 py-2">Volunteer</th>
+                                    <th class="py-2">Event</th>
+                                    <th class="py-2">Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set count = namespace(value=0) %}
+                                {% for member in members %}
+                                    {% for r in member.rsvps %}
+                                        {% if r.is_volunteer and r.status == 'accepted' %}
+                                            {% set count.value = count.value + 1 %}
+                                            <tr>
+                                                <td class="ps-3 fw-bold">{{ member.first_name }} {{ member.last_name }}</td>
+                                                <td>{{ r.event.title }}</td>
+                                                <td>
+                                                    <span class="badge bg-success opacity-75">{{ r.volunteer_role if r.volunteer_role else 'General Helper' }}</span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% if count.value == 0 %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">No active volunteer assignments.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="events">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td class="fw-bold">{{ event.title }}</td>
+                                    <td>{{ event.event_date }}</td>
+                                    <td>{{ event.location }}</td>
+                                    <td>
+                                        <a href="/edit_event/{{ event.id }}" class="btn btn-sm btn-outline-dark">Edit</a>
+                                        <form action="/delete_event/{{ event.id }}" method="POST" class="d-inline">
+                                            <button class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Delete this event?')">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pending">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Member</th>
+                                <th>Event</th>
+                                <th>Message</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rsvp, user, event in pending_volunteers %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ user.first_name }} {{ user.last_name }}</div>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </td>
+                                    <td>{{ event.title }}</td>
+                                    <td>{{ rsvp.volunteer_role if rsvp.volunteer_role else "Interested in helping" }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <form action="/approve_volunteer/{{ rsvp.id }}" method="POST">
+                                                <button class="btn btn-sm btn-success">Approve</button>
+                                            </form>
+                                            <form action="/reject_volunteer/{{ rsvp.id }}" method="POST">
+                                                <button class="btn btn-sm btn-outline-danger">Reject</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No pending volunteer requests.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

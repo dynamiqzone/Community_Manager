@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}Edit Event{% endblock %}
+{% block main %}
+  <h2>Edit Event</h2>
+  <form action="/edit_event/{{ event.id }}" method="post">
+    <input type="text"
+           name="title"
+           value="{{ event.title }}"
+           class="form-control mb-2">
+    <textarea name="description" class="form-control mb-2">{{ event.description }}</textarea>
+    <input type="date"
+           name="date"
+           value="{{ event.event_date }}"
+           class="form-control mb-2">
+    <input type="time"
+           name="time"
+           value="{{ event.event_time }}"
+           class="form-control mb-2">
+    <input type="text"
+           name="location"
+           value="{{ event.location }}"
+           class="form-control mb-2">
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+{% endblock %}

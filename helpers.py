@@ -19,9 +19,15 @@ def login_required(f):
 
 
 def admin_required(f):
-    """
-    Decorate routes to require admin role.
-    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Allow anyone who isn't a basic 'member'
+        if session.get("role") not in ["admin", "supervisor", "treasurer"]:
+            flash("Access denied: Staff only.")
+            return redirect("/")
+        return f(*args, **kwargs)
+
+    return decorated_function
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
