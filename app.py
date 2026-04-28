@@ -11,7 +11,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Add database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
-# Secret key
+# Secret key for login user 
 app.config["SECRET_KEY"] = "my super secret key that no one knows"
 
 # Initialize database
@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 
 # --- MODELS ---
 
-
+# Users database to save their informations 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(200), nullable=False, unique=True)
@@ -31,7 +31,7 @@ class Users(db.Model):
     is_founder = db.Column(db.Boolean, default=False)
     joined_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-
+#Events database to save the events informations
 class Events(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -41,7 +41,7 @@ class Events(db.Model):
     location = db.Column(db.String(200), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-
+# Transactions database to save the payments informations
 class Transactions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
@@ -50,7 +50,7 @@ class Transactions(db.Model):
     date_paid = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship("Users", backref=db.backref("payments", lazy=True))
 
-
+# RSVP database to save the informations of the users who are going to the events and also the volunteers informations
 class RSVP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
@@ -59,29 +59,29 @@ class RSVP(db.Model):
     is_volunteer = db.Column(db.Boolean, default=False)
     volunteer_role = db.Column(
         db.String(100), nullable=True
-    )  # "Catering", "Chairs", etc.
+    )
     __table_args__ = (db.UniqueConstraint("user_id", "event_id", name="unique_rsvp"),)
 
-    # Add these relationships to make the HTML cleaner
+    # Relationships for easy access to user and event details from an RSVP entry
     user = db.relationship("Users", backref=db.backref("rsvps", lazy=True))
     event = db.relationship("Events", backref=db.backref("rsvps", lazy=True))
 
-
+# Announcements database to save the global announcement informations
 class Announcements(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(
         db.Boolean, default=True
-    )  # Allows hiding the bar without deleting
+    )  
 
-
+# Create tables if they don't exist
 with app.app_context():
     db.create_all()
 
 # --- ROUTES ---
 
-
+# Home page to show the events and the global announcement and also the total amount paid by the user and the events that the user is going to attend
 @app.route("/")
 def index():
     events = Events.query.all()
@@ -119,7 +119,7 @@ def index():
         announcement=announcement,
     )
 
-
+# Route for posting a global announcement, only accessible by admins. It deactivates any previous announcements and creates a new active one.
 @app.route("/post_announcement", methods=["POST"])
 @admin_required
 def post_announcement():
@@ -134,7 +134,7 @@ def post_announcement():
         flash("Global announcement updated!")
     return redirect("/admin")
 
-
+# Route for clearing the global announcement, only accessible by admins. It simply deactivates all announcements.
 @app.route("/clear_announcement", methods=["POST"])
 @admin_required
 def clear_announcement():
@@ -143,7 +143,7 @@ def clear_announcement():
     flash("Announcement cleared.")
     return redirect("/admin")
 
-
+# Route for adding a new event, accessible by admins and supervisors. It creates a new event entry in the database with the provided details.
 @app.route("/add_event", methods=["GET", "POST"])
 @login_required
 def add_event():
@@ -165,7 +165,7 @@ def add_event():
         return redirect("/")
     return render_template("add_event.html")
 
-
+# Route for editing an existing event, accessible by admins and supervisors. It updates the event entry in the database with the new details provided.
 @app.route("/edit_event/<int:event_id>", methods=["GET", "POST"])
 @login_required
 def edit_event(event_id):
@@ -185,7 +185,7 @@ def edit_event(event_id):
         return redirect("/admin")
     return render_template("edit_event.html", event=event)
 
-
+# Route for deleting an event, accessible by admins and supervisors. It removes the event entry from the database along with any associated RSVPs.
 @app.route("/delete_event/<int:event_id>", methods=["POST"])
 @login_required
 @admin_required
@@ -201,7 +201,7 @@ def delete_event(event_id):
     flash("Event permanently deleted.")
     return redirect("/admin")
 
-
+# Route for viewing the details of an event, including the list of attendees and whether the current user is attending or volunteering. It fetches the event details, the attendees for that event, and checks if the current user has RSVPed or applied to volunteer for that event.
 @app.route("/event/<int:event_id>")
 @login_required
 def event_detail(event_id):
@@ -216,18 +216,17 @@ def event_detail(event_id):
         "event_detail.html", event=event, attendees=attendees, is_going=is_going
     )
 
-
+# Route for viewing the events that the current user has RSVPed to. It fetches all events that the user has RSVPed to by joining the Events and RSVP tables based on the user's ID. 
 @app.route("/my_events")
 @login_required
 def my_events():
     user_id = session.get("user_id")
-    # This returns a list of Event objects
     joined_events = (
         db.session.query(Events).join(RSVP).filter(RSVP.user_id == user_id).all()
     )
     return render_template("my_events.html", events=joined_events)
 
-
+# Route for the admin panel, accessible only by admins ans supervisors. It shows the list of members, events, pending volunteer applications, and statistics for the top cards. It fetches all members and events from the database, calculates statistics for total members, total RSVPs, and total volunteers, and also fetches any pending volunteer applications for display in the admin panel.
 @app.route("/admin")
 @login_required
 @admin_required
@@ -235,13 +234,12 @@ def admin_panel():
     members = Users.query.all()
     events = Events.query.order_by(Events.event_date.desc()).all()
 
-    # --- NEW: Calculate Stats for the top cards ---
+
     total_members = Users.query.count()
     total_rsvps = RSVP.query.count()
-    # Count only users who have been confirmed/assigned as volunteers
+    
     total_volunteers = RSVP.query.filter_by(is_volunteer=True).count()
 
-    # Fetch pending volunteers for the approval section
     pending_volunteers = (
         db.session.query(RSVP, Users, Events)
         .join(Users, RSVP.user_id == Users.id)
@@ -261,20 +259,20 @@ def admin_panel():
         total_volunteers=total_volunteers,
     )
 
-
+# Route for applying to volunteer for an event. It creates or updates an RSVP entry for the user with the volunteer information and sets the status to pending for admin approval.
 @app.route("/apply_to_volunteer/<int:event_id>", methods=["POST"])
 @login_required
 def apply_to_volunteer(event_id):
     rsvp = RSVP.query.filter_by(user_id=session["user_id"], event_id=event_id).first()
     if rsvp:
         rsvp.is_volunteer = True
-        rsvp.status = "pending"  # Keep status pending until Admin approves
+        rsvp.status = "pending" # Set to pending for admin approval
         rsvp.volunteer_role = request.form.get("message")
         db.session.commit()
         flash("Your request to volunteer has been sent!")
     return redirect(f"/event/{event_id}")
 
-
+# Route for approving a volunteer application. It updates the RSVP entry to mark the user as an approved volunteer for the event.
 @app.route("/approve_volunteer/<int:rsvp_id>", methods=["POST"])
 @admin_required
 def approve_volunteer(rsvp_id):
@@ -284,7 +282,7 @@ def approve_volunteer(rsvp_id):
     flash("Volunteer approved!")
     return redirect("/admin")
 
-
+# Route for rejecting a volunteer application. It updates the RSVP entry to mark the user as not a volunteer and resets their status to accepted (since they are still attending, just not volunteering).
 @app.route("/reject_volunteer/<int:rsvp_id>", methods=["POST"])
 @admin_required
 def reject_volunteer(rsvp_id):
@@ -298,7 +296,7 @@ def reject_volunteer(rsvp_id):
     flash("Volunteer request declined.")
     return redirect("/admin")
 
-
+# Route for assigning a member to an event as a volunteer. It creates or updates an RSVP entry for the specified user and event, marking them as a volunteer with the specified role.
 @app.route("/assign_member_to_event", methods=["POST"])
 @login_required
 def assign_member_to_event():
@@ -308,8 +306,7 @@ def assign_member_to_event():
 
     user_id = request.form.get("user_id")
     event_id = request.form.get("event_id")
-    role = request.form.get("volunteer_role")  # Get the role from the modal
-
+    role = request.form.get("volunteer_role")  
     existing = RSVP.query.filter_by(user_id=user_id, event_id=event_id).first()
 
     if existing:
@@ -330,7 +327,7 @@ def assign_member_to_event():
     db.session.commit()
     return redirect("/admin")
 
-
+# (Reset database requires if need to replace Founder you can do it manually via sqlite or delete database file app will create new one but all members will be gone doing this way. The First person who registers will become the owner and only they can assign admin and supervisors)Route for changing a user's role (admin, supervisor, member). Only the Founder can access this route to ensure that there is always a top-level admin in control of role assignments.
 @app.route("/change_role/<int:user_id>/<string:new_role>", methods=["POST"])
 @login_required
 def change_role(user_id, new_role):
@@ -351,7 +348,7 @@ def change_role(user_id, new_role):
     flash(f"Updated {user.username} to {new_role.capitalize()}")
     return redirect("/admin")
 
-
+# Route for user login. It checks the provided username and password against the database, and if valid, it sets the session variables to log the user in.
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -370,7 +367,7 @@ def login():
         flash("Invalid username or password")
     return render_template("login.html")
 
-
+# Route for user registration. It creates a new user in the database with the provided information, ensuring that the username is unique and that the password and confirmation match. The first user to register will automatically become the Founder and an admin.
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -406,7 +403,7 @@ def register():
         return redirect("/login")
     return render_template("register.html")
 
-
+# Route for viewing and editing the user's profile. It allows the user to update their first name, last name, however email can not be changed. The changes are saved to the database and the session is updated with the new first name for display purposes
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
@@ -414,14 +411,14 @@ def profile():
     if request.method == "POST":
         user.first_name = request.form.get("first_name")
         user.last_name = request.form.get("last_name")
-        user.email = request.form.get("email")
+        # Removed email update to match project constraints
         db.session.commit()
         session["first_name"] = user.first_name
         flash("Profile updated!")
         return redirect("/profile")
     return render_template("profile.html", user=user)
 
-
+# Route for RSVPing to an event. It creates a new RSVP entry in the database for the user and event, marking them as attending. If the user has already RSVPed, it does nothing. After RSVPing, it redirects back to the event details page.
 @app.route("/rsvp/<int:event_id>", methods=["POST"])
 @login_required
 def rsvp(event_id):
@@ -432,7 +429,7 @@ def rsvp(event_id):
         flash("You're on the list!")
     return redirect("/")
 
-
+# Route for cancelling an RSVP. It deletes the RSVP entry for the user and event from the database, effectively removing them from the attendee list. After cancelling, it redirects back to the home page.
 @app.route("/cancel_rsvp/<int:event_id>", methods=["POST"])
 @login_required
 def cancel_rsvp(event_id):
@@ -443,20 +440,16 @@ def cancel_rsvp(event_id):
         flash("RSVP cancelled.")
     return redirect("/")
 
-
+# Route for viewing the user's payment history. It fetches all transactions for the logged-in user, calculates the total amount paid, and renders the payment history page with this information.
 @app.route("/my_payments")
 @login_required
 def my_payments():
     user_id = session.get("user_id")
-
-    # Fetch all transactions for this user, newest first
     user_payments = (
         Transactions.query.filter_by(user_id=user_id)
         .order_by(Transactions.date_paid.desc())
         .all()
     )
-
-    # Calculate the total amount paid using a simple loop
     total_paid = sum(payment.amount for payment in user_payments)
 
     return render_template("my_payments.html", payments=user_payments, total=total_paid)

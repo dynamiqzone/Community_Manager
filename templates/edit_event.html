@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Edit Event{% endblock %}
 {% block main %}
+<!-- Edit Event Page: A form for users to edit existing events. It pre-fills the form fields with the current event data, allowing users to make changes and save them. The form is styled using Bootstrap and submits the updated data to the server for processing. -->
   <h2>Edit Event</h2>
   <form action="/edit_event/{{ event.id }}" method="post">
     <input type="text"

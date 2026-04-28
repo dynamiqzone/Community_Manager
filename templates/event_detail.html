@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}{{ event.title }}{% endblock %}
 {% block main %}
+<!-- Event Detail Page Template -->
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -87,6 +88,7 @@
                         {% endif %}
                     </div>
                 </div>
+                <!-- Volunteer Section -->
                 {% if is_going and not is_volunteer %}
                     <div class="card mt-4 border-primary shadow-sm">
                         <div class="card-body text-center">

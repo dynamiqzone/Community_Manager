@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 {% block title %}Admin Panel{% endblock %}
 {% block main %}
+<!-- Admin Panel Template: Provides an interface for community administrators and supervisorsto manage announcements, volunteer requests, members, and events. It includes sections for posting announcements, reviewing pending volunteer requests, and viewing statistics about the community. The template uses Bootstrap for styling and layout. -->
     <div class="container mt-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Community Administration</h1>
         </div>
+        <!-- Announcement Section: Allows admins to post a global announcement that will be visible to all members. It includes a form for submitting the announcement content and a button to clear the current announcement. -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
                 <h5 class="card-title fw-bold mb-3">
@@ -23,6 +25,7 @@
                 </form>
             </div>
         </div>
+        <!-- Pending Volunteer Requests Section: Displays a list of pending volunteer requests from members who have expressed interest in helping with events. Each request shows the member's name, the event they want to volunteer for, and any proposed role or note. Admins can approve or reject each request directly from this interface. -->
         <div class="card border-warning mb-4 shadow-sm">
             <div class="card-header bg-warning text-dark fw-bold">
                 <i class="bi bi-person-badge me-2"></i> Pending Volunteer Requests
@@ -75,6 +78,7 @@
                 </div>
             </div>
         </div>
+        <!-- Statistics and Management Tabs: Provides an overview of key statistics such as total members, total RSVPs, and active volunteers. Below the statistics, there are tabs for managing members, events, and pending volunteer requests. Each tab contains tables and forms for performing various administrative actions like assigning volunteers to events, changing member roles, editing events, and reviewing volunteer requests. -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="card bg-primary text-white shadow-sm border-0">
@@ -101,6 +105,7 @@
                 </div>
             </div>
         </div>
+        <!-- Management Tabs: Contains three tabs for managing members, events, and pending volunteer requests. The Members tab allows admins to view all members, assign them to events, and change their roles. The Events tab provides a list of all events with options to edit or delete them. The Pending Volunteer Requests tab shows all pending requests with options to approve or reject them. -->
         <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
             <li class="nav-item">
                 <button class="nav-link active"
@@ -224,6 +229,7 @@
                         </tbody>
                     </table>
                 </div>
+                <!-- Volunteer Assignments: Below the members table, this section lists all current volunteer assignments, showing which members are volunteering for which events and in what roles. This provides admins with a quick overview of active volunteers and their commitments. -->
                 <div class="mt-5 pt-4 border-top">
                     <h3 class="h4 mb-3">Current Volunteer Assignments</h3>
                     <div class="card shadow-sm overflow-hidden border-0">
@@ -261,6 +267,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Events Tab: Displays a list of all events with their title, date, and location. Admins can edit or delete events directly from this interface. This allows for easy management of the event calendar and ensures that all event information is up to date. -->
             <div class="tab-pane fade" id="events">
                 <div class="table-responsive">
                     <table class="table table-hover">
